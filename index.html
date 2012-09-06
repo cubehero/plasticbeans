@@ -1,0 +1,53 @@
+<!DOCTYPE html><html land="en"><head><title>Plastic Beans</title><link rel="stylesheet" href="bootstrap/css/bootstrap.min.css"><script type="text/javascript" src="http://code.jquery.com/jquery-1.8.1.min.js"></script><script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script><script type="text/javascript">
+//<![CDATA[
+$(function() {
+  $("#show_length_help").click(function(evt) {
+    $("#length_help").toggle();
+  });
+  
+  $("#cost_form").submit(function(evt) {
+    evt.preventDefault();
+    var densityOf = function(plasticName) {
+      // density in grams / mm^2
+      switch(plasticName) {
+      case "abs":
+        return 0.00105;
+      break;
+      case "pla":
+        return 0.00125;
+      break;
+      case "pva":
+        return 0.00119;
+      break;
+      case "hdpe":
+        return 0.00097;
+      break;
+      }
+    }
+    var cost = parseFloat($("#cost").val());
+    var diameter = parseFloat($("#diameter").val());
+    var quantity = parseFloat($("#quantity").val());
+    var length = parseFloat($("#length").val());
+    var density = densityOf($("#material").val());
+    
+    var radius = diameter / 2;
+    var area = Math.PI * Math.pow(radius, 2)
+ 
+    var weight = area * length * density;
+    var price = (cost / 1000) * weight;
+ 
+    $('#results').fadeOut(200, function() {
+      $('#results').html(
+        $(['<h4>Weight</h4>',
+           '<p>' + Math.round(weight * 1000) / 1000 + 'kg' + '</p>',
+           '<h4>Price</h4>',
+           '<p>$' + Math.round(price * 100) / 100 + '</p>',
+           '<h4>Objects / Kg</h4>',
+           '<p>' + Math.round(1000 / weight) + '</p>'
+          ].join(" "))
+        );
+      });
+      $('#results').fadeIn(200);
+  });
+});
+//]]></script></head><body><div class="row"><div class="span8 offset2"><h1>Plastic Bean</h1></div></div><div class="row"><div class="span4 offset2"><form id="cost_form"><legend>Calculate the Cost of a Print</legend><label for="material">Material</label><select id="material" name="material" class="input-large"><option value="abs">ABS</option><option value="pla">PLA</option><option value="pva">PVA</option><option value="hdpe">HDPE</option></select><label for="cost">Cost per Kilogram</label><div class="input-prepend"><span class="add-on">&nbsp;$</span><input id="cost" name="cost" type="number" value="55" class="input-large"></div><label for="diameter">Diameter of Filament</label><div class="input-append"><input id="diameter" name="diameter" type="text" value="1.75" class="input-large"><span class="add-on">mm</span></div><label for="quantity">Number of items to print</label><input id="quantity" name="quantity" type="number" value="1" class="input-large"><label for="length">Length of Filament Used <a id="show_length_help" href="#"><i class="icon-question-sign"></i></a></label><div id="length_help" class="alert hide"><button type="button" data-dismiss="alert" class="close">x</button><h4 style="margin-bottom: 1em">How to get the length of filament</h4><p>To find out how much filament is required for a model, open up the <gcode>file for the model and scroll all the way to the bottom. Look</gcode><for>the last entry in the file that begins with the letter E. It may</for><look>something like this:</look><pre>G1 E26477.211 </pre>Plug this number (26477.211) into the length field of the 3d calculator, <and>fill out the rest of the fields in the dialog box. Hit calculate to</and><get>the weight and cost estimates. </get></p></div><div class="input-append"><input id="length" name="length" type="number" placeholder="Length of filament used" class="input-large"><span class="add-ok">mm</span></div><div class="form-actions"><button type="submit" class="btn btn-primary">Calculate</button></div></form></div><div class="span4"><legend>Results</legend><div id="results"></div></div></div></body></html>

@@ -1,0 +1,116 @@
+!!! 5
+html(land="en")
+  head
+    title Plastic Beans
+    link(rel="stylesheet", href="bootstrap/css/bootstrap.min.css")
+    script(type="text/javascript", src="http://code.jquery.com/jquery-1.8.1.min.js")
+    script(type="text/javascript", src="bootstrap/js/bootstrap.min.js")
+
+    :javascript
+      | $(function() {
+      |   $("#show_length_help").click(function(evt) {
+      |     $("#length_help").toggle();
+      |   });
+      |   
+      |   $("#cost_form").submit(function(evt) {
+      |     evt.preventDefault();
+      |     var densityOf = function(plasticName) {
+      |       // density in grams / mm^2
+      |       switch(plasticName) {
+      |       case "abs":
+      |         return 0.00105;
+      |       break;
+      |       case "pla":
+      |         return 0.00125;
+      |       break;
+      |       case "pva":
+      |         return 0.00119;
+      |       break;
+      |       case "hdpe":
+      |         return 0.00097;
+      |       break;
+      |       }
+      |     }
+      |     var cost = parseFloat($("#cost").val());
+      |     var diameter = parseFloat($("#diameter").val());
+      |     var quantity = parseFloat($("#quantity").val());
+      |     var length = parseFloat($("#length").val());
+      |     var density = densityOf($("#material").val());
+      |     
+      |     var radius = diameter / 2;
+      |     var area = Math.PI * Math.pow(radius, 2)
+      | 
+      |     var weight = area * length * density;
+      |     var price = (cost / 1000) * weight;
+      | 
+      |     $('#results').fadeOut(200, function() {
+      |       $('#results').html(
+      |         $(['<h4>Weight</h4>',
+      |            '<p>' + Math.round(weight * 1000) / 1000 + 'kg' + '</p>',
+      |            '<h4>Price</h4>',
+      |            '<p>$' + Math.round(price * 100) / 100 + '</p>',
+      |            '<h4>Objects / Kg</h4>',
+      |            '<p>' + Math.round(1000 / weight) + '</p>'
+      |           ].join(" "))
+      |         );
+      |       });
+      |       $('#results').fadeIn(200);
+      |   });
+      | });
+  body
+    .row
+      .span8.offset2
+        h1 Plastic Bean
+    .row
+      .span4.offset2
+        form#cost_form
+          legend Calculate the Cost of a Print
+
+          label(for="material") Material
+          select.input-large(id="material", name="material")
+            option(value="abs") ABS
+            option(value="pla") PLA
+            option(value="pva") PVA
+            option(value="hdpe") HDPE
+
+          label(for="cost") Cost per Kilogram
+          .input-prepend
+            span.add-on &nbsp;$
+            input.input-large#cost(name="cost", type="number", value="55")
+
+          label(for="diameter") Diameter of Filament
+          .input-append
+            input.input-large#diameter(name="diameter", type="text", value="1.75")
+            span.add-on mm
+          
+          label(for="quantity") Number of items to print
+          input.input-large#quantity(name="quantity", type="number", value="1")
+
+          label(for="length")
+            | Length of Filament Used
+            a#show_length_help(href="#")
+              i.icon-question-sign
+          #length_help.alert.hide
+            button.close(type="button", data-dismiss="alert") x
+            h4(style="margin-bottom: 1em") How to get the length of filament
+            p
+              | To find out how much filament is required for a model, open up the
+              gcode file for the model and scroll all the way to the bottom. Look
+              for the last entry in the file that begins with the letter E. It may
+              look something like this:
+              pre
+                | G1 E26477.211
+              | Plug this number (26477.211) into the length field of the 3d calculator,
+              and fill out the rest of the fields in the dialog box. Hit calculate to
+              get the weight and cost estimates. 
+          .input-append
+            input.input-large#length(name="length", type="number", placeholder="Length of filament used")
+            span.add-ok mm
+
+          .form-actions
+            button.btn.btn-primary(type="submit") Calculate
+
+      .span4
+        legend Results
+        #results
+
